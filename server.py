@@ -85,3 +85,6 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             elif len(data.decode()) > 0:
                 final_message = "Pong"
                 s.sendall(final_message.encode())
+    else:
+        print("command not found")
+        exit()
