@@ -6,6 +6,39 @@ HOST = '127.0.0.1'  # Standard loopback interface address (localhost)
 PORT = 1378  # Port to listen on (non-privileged ports are > 1023)
 
 
+def waiting_ping(connection, address):
+    counter = 0
+    connection.settimeout(1)
+    while True:
+        final_message = "Ping"
+        connection.sendall(final_message.encode())
+        current_time = time.time()
+        while True:
+            flag = True
+            try:
+                reply_message = connection.recv(1024)
+            except socket.timeout as e:
+                flag = False
+                print(f"{address} did not respond to periodic ping")
+            final_time = time.time()
+            if flag:
+                if reply_message.decode() == "Pong":
+                    time.sleep(10 - (final_time - current_time))
+                    counter = 0
+                    break
+            if final_time > current_time + 10:
+                counter += 1
+                print(f"{address} did not respond to periodic ping for {counter * 10} seconds")
+                break
+        if counter >= 3:
+            print(f"{address} did not respond for 3 period and get disconnected", flush=True)
+            close_socket(connection)
+            break
+        else:
+            if counter == 0:
+                print(f"{address} respond to periodic ping successfully", flush=True)
+
+
 def message_handler(conn, message):
     msg = message.split(" ")
     message_type = msg[0]
