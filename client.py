@@ -3,15 +3,18 @@ import sys
 import threading
 import time
 
+# the initial variables
 HOST = sys.argv[1]
 PORT = int(sys.argv[2])
 
+# the request handel for subscribers
 def subscribe_request(conn, message):
     try:
         conn.sendall(message.encode())
     except Exception:
         print("failed")
 
+# all type of the connection are handle here
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     try:
         print(HOST, PORT)
