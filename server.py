@@ -6,6 +6,14 @@ HOST = '127.0.0.1'  # Standard loopback interface address (localhost)
 PORT = 1378  # Port to listen on (non-privileged ports are > 1023)
 
 
+def add_to_subscribers(conn, topic):
+    if subscribers.get(topic) is not None:
+        subscribers.get(topic).append(conn)
+    else:
+        subscribers[topic] = [conn]
+
+
+
 def send_to_subscribers(topic, message):
     total_message = ""
     for i in range(len(message)):
