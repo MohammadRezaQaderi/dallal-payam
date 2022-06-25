@@ -120,6 +120,13 @@ def handler(conn, addr):
         print('Disconnected by', addr)
 
 
+def close_socket(conn):
+    for connections in subscribers.values():
+        if conn in connections:
+            connections.remove(conn)
+    conn.shutdown(socket.SHUT_RDWR)
+    conn.close()
+
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     print("server is up. ready to go ...")
     s.bind((HOST, PORT))
