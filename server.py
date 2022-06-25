@@ -6,6 +6,30 @@ HOST = '127.0.0.1'  # Standard loopback interface address (localhost)
 PORT = 1378  # Port to listen on (non-privileged ports are > 1023)
 
 
+def message_handler(conn, message):
+    msg = message.split(" ")
+    message_type = msg[0]
+    if message_type == 'Publish':
+        topic = msg[1]
+        message = msg[2:]
+        result = send_to_subscribers(topic, message)
+        return_message = "PubAck"
+        # if not result:
+        #     return_message += " no subscriber on this topic yet"
+        # else:
+        #     return_message += " send to all subscribers successfully"
+    elif message_type == 'Subscribe':
+        topic = msg[1]
+        add_to_subscribers(conn, topic)
+        return_message = f'{topic} : SubAck '
+    elif message_type == 'Ping':
+        return_message = 'Pong'
+    else:
+        return_message = 'Non defined'
+    return return_message
+
+
+
 
 def handler(conn, addr):
     print(f"connected by {addr}")
