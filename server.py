@@ -6,6 +6,22 @@ HOST = '127.0.0.1'  # Standard loopback interface address (localhost)
 PORT = 1378  # Port to listen on (non-privileged ports are > 1023)
 
 
+def send_to_subscribers(topic, message):
+    total_message = ""
+    for i in range(len(message)):
+        total_message += message[i]
+    final_message = topic + " : " + total_message
+    if subscribers.get(topic) is None:
+        return False
+    else:
+        for connection in subscribers.get(topic):
+            try:
+                connection.sendall(final_message.encode())
+            except Exception:
+                print(f"could not send message for {connection} maybe because its closed")
+        return True
+
+
 def waiting_ping(connection, address):
     counter = 0
     connection.settimeout(1)
