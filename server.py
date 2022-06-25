@@ -2,6 +2,7 @@ import socket
 import threading
 import time
 
+# the initail variables
 HOST = '127.0.0.1'  # Standard loopback interface address (localhost)
 PORT = 1378  # Port to listen on (non-privileged ports are > 1023)
 
@@ -9,14 +10,14 @@ subscribers = {}
 threads = []
 
 
+# add client to subscribers
 def add_to_subscribers(conn, topic):
     if subscribers.get(topic) is not None:
         subscribers.get(topic).append(conn)
     else:
         subscribers[topic] = [conn]
 
-
-
+# send message to subscribers
 def send_to_subscribers(topic, message):
     total_message = ""
     for i in range(len(message)):
@@ -32,7 +33,7 @@ def send_to_subscribers(topic, message):
                 print(f"could not send message for {connection} maybe because its closed")
         return True
 
-
+# the send waiting ping to subscribers
 def waiting_ping(connection, address):
     counter = 0
     connection.settimeout(1)
@@ -65,7 +66,7 @@ def waiting_ping(connection, address):
             if counter == 0:
                 print(f"{address} respond to periodic ping successfully", flush=True)
 
-
+# the message handler for push and send message for clients
 def message_handler(conn, message):
     msg = message.split(" ")
     message_type = msg[0]
@@ -89,8 +90,7 @@ def message_handler(conn, message):
     return return_message
 
 
-
-
+# the handler of connections
 def handler(conn, addr):
     print(f"connected by {addr}")
     with conn:
@@ -122,7 +122,7 @@ def handler(conn, addr):
             close_socket(conn)
         print('Disconnected by', addr)
 
-
+# at the end close the socket
 def close_socket(conn):
     for connections in subscribers.values():
         if conn in connections:
@@ -130,6 +130,7 @@ def close_socket(conn):
     conn.shutdown(socket.SHUT_RDWR)
     conn.close()
 
+# connection 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     print("server is up. ready to go ...")
     s.bind((HOST, PORT))
